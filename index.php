@@ -20,6 +20,7 @@ do
       }
     $turns++;
 
+    if (0)
     echo "turn: {$turns}, count: ".count($pics).
       ", start: ".$medias['media']['page_info']['start_cursor'].
       ", end: ".$medias['media']['page_info']['end_cursor']."\n";
@@ -27,8 +28,13 @@ do
     sleep(1);
   }
 while (($turns < 5) && ($medias['media']['page_info']['start_cursor'] != $medias['media']['page_info']['end_cursor']));
+//print_r($pics);
 
-print_r($pics);
+foreach ($pics as $p)
+  {
+    echo "<img src='{$p}' width='128px' />";
+  }
+
 
 function get_csrftoken($tag, $tmpfname, $ua)
 {
