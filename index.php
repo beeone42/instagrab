@@ -1,6 +1,5 @@
 <?php
 
-
 $tag = $_REQUEST['tag'];
 $tmpfname = 'cookie.txt';
 $ua = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_3) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/47.0.2526.106 Safari/537.36';
@@ -20,13 +19,16 @@ do
 	$pics[$img['id']] = $img['thumbnail_src'];
       }
     $turns++;
+
+    echo "turn: {$turns}, count: ".count($pics).
+      ", start: ".$medias['media']['page_info']['start_cursor'].
+      ", end: ".$medias['media']['page_info']['end_cursor']."\n";
+
     sleep(1);
   }
-while (($turns < 10) && (count($pics) < $medias['media']['count']));
+while (($turns < 5) && ($medias['media']['page_info']['start_cursor'] != $medias['media']['page_info']['end_cursor']));
 
 print_r($pics);
-
-
 
 function get_csrftoken($tag, $tmpfname, $ua)
 {
