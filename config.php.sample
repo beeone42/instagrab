@@ -5,5 +5,6 @@ define('DB_USER', "my_user"); /* change me */
 define('DB_PASS', "my_pass"); /* change me */
 define('DB_NAME', "my_db");   /* change me */
 
+define('DEFAULT_TAG', "42born2code");
 
 ?>

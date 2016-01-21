@@ -87,6 +87,14 @@ class DB_Functions {
   }
 
   /**
+   * set moderation
+   */
+  public function setModeration($id, $mod) {
+    $result = $this->db->query("UPDATE ig SET moderation = '{$mod}' WHERE id = '{$id}'");
+  }
+
+
+  /**
    * Getting all pictures
    */
   public function alreadyExistsPicture($id) {
@@ -97,8 +105,11 @@ class DB_Functions {
   /**
    * Getting all pictures
    */
-  public function getPictures() {
-    $result = $this->db->query("SELECT * FROM ig", "id");
+  public function getPictures($tag, $w = "") {
+    $q = "SELECT * FROM ig";
+    if ($w != "")
+      $q .= " WHERE (tag = '{$tag}' AND {$w})";
+    $result = $this->db->query($q, "id");
     return $result;
   }
 
