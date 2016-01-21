@@ -61,7 +61,7 @@ function show_pics($pics)
   foreach ($pics as $p)
     {
       echo "<div id='d{$p[id]}'>";
-      echo "<a href='{$p[full]}' target='_blank'>";
+      echo "<a href='https://www.instagram.com/p/{$p[code]}/' target='_blank'>";
       echo "<img id='ig{$p[id]}' src='{$p[thumb]}' width='128px' height='128px' /></a><br />";
       echo "<span mod='1' id='{$p[id]}'>YES</span> / <span mod='2' id='{$p[id]}'>NO</span>";
       echo "</div>";

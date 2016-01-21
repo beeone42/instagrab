@@ -51,6 +51,7 @@ list($csrftoken, $id) = get_csrftoken($tag, $tmpfname, $ua);
 
 $pics = Array();
 $turns = 0;
+$cont = true;
 do
   {
     $medias = get_medias($tag, $tmpfname, $ua, $csrftoken, $id);
@@ -63,6 +64,8 @@ do
 				  "thumb"	=> $img['thumbnail_src'],
 				  "full"	=> $img['display_src']
 				  );
+	if ($db->alreadyExistsPicture($img['id']))
+	  $cont = false;
       }
     $turns++;
 
@@ -74,7 +77,7 @@ do
     $id = $medias['media']['page_info']['end_cursor'];
     sleep(0.5);
   }
-while (($turns < 50) && ($medias['media']['page_info']['start_cursor'] != $medias['media']['page_info']['end_cursor']));
+while ($cont && ($turns < 50) && ($medias['media']['page_info']['start_cursor'] != $medias['media']['page_info']['end_cursor']));
 
 foreach ($pics as $p)
   {
