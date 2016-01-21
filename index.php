@@ -1,44 +1,97 @@
 <?php
 
+require("config.php");
+require("db.php");
+
+set_time_limit(600);
+
 $tag = $_REQUEST['tag'];
 $tmpfname = 'cookie.txt';
 $ua = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_3) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/47.0.2526.106 Safari/537.36';
 
-$csrftoken = get_csrftoken($tag, $tmpfname, $ua);
+// {"has_previous_page":false,"start_cursor":"1162234081011539497","end_cursor":"1004470932121113243","has_next_page":true}
+list($csrftoken, $id) = get_csrftoken($tag, $tmpfname, $ua);
 //echo $csrftoken; //exit ;
 
+/*
+                    [0] => Array
+		      (
+                            [code] => BAhFb0oi54p
+                            [date] => 1452769120
+                            [dimensions] => Array
+			    (
+                                    [width] => 1080
+                                    [height] => 1080
+			     )
+
+                            [comments] => Array
+			    (
+                                    [count] => 0
+			     )
+
+                            [caption] => In the world there are "10" types of people, those which include binary , and others.
+
+#42born2code
+                            [likes] => Array
+			    (
+                                    [count] => 11
+			     )
+
+                            [owner] => Array
+			    (
+                                    [id] => 605445742
+			     )
+
+                            [thumbnail_src] => https://scontent-cdg2-1.cdninstagram.com/hphotos-xtp1/l/t51.2885-15/s640x640/sh0.08/e35/12523695_549959975159923_1617068191_n.jpg
+                            [is_video] => 
+                            [id] => 1162234081011539497
+                            [display_src] => https://scontent-cdg2-1.cdninstagram.com/hphotos-xtp1/l/t51.2885-15/e35/12523695_549959975159923_1617068191_n.jpg
+		       )
+		      */
+
 $pics = Array();
-$id = 1;
 $turns = 0;
 do
   {
     $medias = get_medias($tag, $tmpfname, $ua, $csrftoken, $id);
-    $id = $medias['media']['page_info']['end_cursor'];
+    //print_r($medias);
     foreach ($medias['media']['nodes'] as $img)
       {
-	$pics[$img['id']] = $img['thumbnail_src'];
+	$pics[$img['id']] = Array(
+				  "id"		=> $img['id'],
+				  "thumb"	=> $img['thumbnail_src'],
+				  "full"	=> $img['display_src']
+				  );
       }
     $turns++;
 
-    if (0)
-    echo "turn: {$turns}, count: ".count($pics).
+    if (1)
+    echo "turn: {$turns}, count: ".count($pics).", id: {$id}".
       ", start: ".$medias['media']['page_info']['start_cursor'].
       ", end: ".$medias['media']['page_info']['end_cursor']."\n";
 
-    sleep(1);
+    $id = $medias['media']['page_info']['end_cursor'];
+    sleep(0.5);
   }
 while (($turns < 5) && ($medias['media']['page_info']['start_cursor'] != $medias['media']['page_info']['end_cursor']));
 //print_r($pics);
+//exit;
 
 foreach ($pics as $p)
   {
-    echo "<img src='{$p}' width='128px' />";
+    //echo "<a href=''><img src='{$p[thumb]}' alt='{$p[id]}' width='128px' /></a>";
+    if (!$db->alreadyExistsPicture($p['id']))
+      {
+	$db->storePicture($p['id'], $tag, $p['thumb'], $p['full']);
+	echo "<a href=''><img src='{$p[thumb]}' alt='{$tag} #{$p[id]}' width='128px' /></a>";
+      }
   }
 
 
 function get_csrftoken($tag, $tmpfname, $ua)
 {
   $url = "https://www.instagram.com/explore/tags/{$tag}/";
+  $id = 0;
   $csrftoken = "";
   $curl = curl_init($url);
   curl_setopt($curl, CURLOPT_COOKIEJAR, $tmpfname);
@@ -55,13 +108,18 @@ function get_csrftoken($tag, $tmpfname, $ua)
     {
       $csrftoken = $regs[1];
     }
+  if (preg_match('/\"start_cursor\":\"([0-9]+)\"/', $response, $regs))
+    {
+      print_r($regs);
+      $id = $regs[1];
+    }
   
   if ($status != 200)
     {
       die("Error: call to URL $url failed with status $status, response $json_response, curl_error " . curl_error($curl) . ", curl_errno " . curl_errno($curl));
     }
   curl_close($curl);
-  return ($csrftoken);
+  return (Array($csrftoken, $id));
 }
 
 function get_medias($tag, $tmpfname, $ua, $csrftoken, $id)
@@ -88,9 +146,6 @@ function get_medias($tag, $tmpfname, $ua, $csrftoken, $id)
 	      );
   curl_setopt($curl, CURLOPT_POST, true);
   curl_setopt($curl, CURLOPT_POSTFIELDS, $content);
-  //curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-  curl_setopt($ch, CURLOPT_REFERER, $url1);
-
   $json_response = curl_exec($curl);
   
   //print_r(curl_getinfo ($curl, CURLINFO_HEADER_OUT ));
