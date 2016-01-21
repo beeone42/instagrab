@@ -116,14 +116,14 @@ class DB_Functions {
   /**
    * Storing new device
    */
-  public function storePicture($id, $tag, $thumb, $full)
+  public function storePicture($id, $tag, $code, $thumb, $full)
   {
     // remove previous record with same id
     $q = "DELETE FROM ig WHERE id = '{$id}'";
     $this->db->query($q, MYSQLI_STORE_RESULT);
     // insert picture into database
-    $q = "INSERT INTO ig (id, tag, thumb, full, moderation) ".
-      "VALUES('{$id}', '{$tag}', '{$thumb}', '{$full}', 0)";
+    $q = "INSERT INTO ig (id, tag, code, thumb, full, moderation) ".
+      "VALUES('{$id}', '{$tag}', '{$code}', '{$thumb}', '{$full}', 0)";
     //echo "{$q}\n";
     return ($this->db->query($q));
   }

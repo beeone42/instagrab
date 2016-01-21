@@ -59,6 +59,7 @@ do
       {
 	$pics[$img['id']] = Array(
 				  "id"		=> $img['id'],
+				  "code"	=> $img['code'],
 				  "thumb"	=> $img['thumbnail_src'],
 				  "full"	=> $img['display_src']
 				  );
@@ -68,22 +69,20 @@ do
     if (1)
     echo "turn: {$turns}, count: ".count($pics).", id: {$id}".
       ", start: ".$medias['media']['page_info']['start_cursor'].
-      ", end: ".$medias['media']['page_info']['end_cursor']."\n";
+      ", end: ".$medias['media']['page_info']['end_cursor']."<br />\n";
 
     $id = $medias['media']['page_info']['end_cursor'];
     sleep(0.5);
   }
-while (($turns < 5) && ($medias['media']['page_info']['start_cursor'] != $medias['media']['page_info']['end_cursor']));
-//print_r($pics);
-//exit;
+while (($turns < 50) && ($medias['media']['page_info']['start_cursor'] != $medias['media']['page_info']['end_cursor']));
 
 foreach ($pics as $p)
   {
-    //echo "<a href=''><img src='{$p[thumb]}' alt='{$p[id]}' width='128px' /></a>";
     if (!$db->alreadyExistsPicture($p['id']))
       {
-	$db->storePicture($p['id'], $tag, $p['thumb'], $p['full']);
-	echo "<a href=''><img src='{$p[thumb]}' alt='{$tag} #{$p[id]}' width='128px' /></a>";
+	$db->storePicture($p['id'], $tag, $p['code'], $p['thumb'], $p['full']);
+	echo "<a href='https://www.instagram.com/p/{$p[code]}/' target='_blank'>";
+	echo "<img src='{$p[thumb]}' alt='{$tag} #{$p[id]}' width='128px' /></a>";
       }
   }
 
@@ -110,7 +109,7 @@ function get_csrftoken($tag, $tmpfname, $ua)
     }
   if (preg_match('/\"start_cursor\":\"([0-9]+)\"/', $response, $regs))
     {
-      print_r($regs);
+      //print_r($regs);
       $id = $regs[1];
     }
   

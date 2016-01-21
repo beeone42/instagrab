@@ -6,6 +6,11 @@ div {
  text-align: center;
    float: left;
  }
+
+div.block {
+display: block;
+}
+
 </style>
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.0/jquery.min.js"></script>
 <script>
@@ -38,18 +43,26 @@ $good = $db->getPictures($tag, "moderation = '1'");
 show_pics($good);
 echo "</div>\n";
 
-echo "<div style='display: block; background-color: red'>\n";
-$bad = $db->getPictures($tag, "moderation = '2'");
-show_pics($bad);
-echo "</div>\n";
-
+if ($_REQUEST['showbad'] == '1')
+  {
+    echo "<div class='block' style='background-color: red'>\n";
+    $bad = $db->getPictures($tag, "moderation = '2'");
+    show_pics($bad);
+    echo "</div>\n";
+    echo "<div class='block'><a href='index.php?tag={$tag}&showbad=0'>Hide bad pics...</a></div>";
+  }
+else
+  {
+    echo "<div class='block'><a href='index.php?tag={$tag}&showbad=1'>Show bad pics...</a></div>";
+  }
 
 function show_pics($pics)
 {
   foreach ($pics as $p)
     {
       echo "<div id='d{$p[id]}'>";
-      echo "<img id='ig{$p[id]}' src='{$p[thumb]}' width='128px' height='128px' /><br />";
+      echo "<a href='{$p[full]}' target='_blank'>";
+      echo "<img id='ig{$p[id]}' src='{$p[thumb]}' width='128px' height='128px' /></a><br />";
       echo "<span mod='1' id='{$p[id]}'>YES</span> / <span mod='2' id='{$p[id]}'>NO</span>";
       echo "</div>";
     }

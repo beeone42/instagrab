@@ -7,8 +7,10 @@ DROP TABLE IF EXISTS `ig`;
 CREATE TABLE `ig` (
   `id` bigint(20) NOT NULL,
   `tag` varchar(255) NOT NULL,
+  `code` varchar(255) NOT NULL,
   `thumb` varchar(255) NOT NULL,
   `full` varchar(255) NOT NULL,
-  `moderation` int(11) NOT NULL
+  `moderation` int(11) NOT NULL,
+  UNIQUE KEY `id` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
