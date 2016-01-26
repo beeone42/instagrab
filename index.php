@@ -83,12 +83,51 @@ foreach ($pics as $p)
   {
     if (!$db->alreadyExistsPicture($p['id']))
       {
-	$db->storePicture($p['id'], $tag, $p['code'], $p['thumb'], $p['full']);
+	$p['owner'] = get_owner($tmpfname, $ua, $p['code']);
+	$db->storePicture($p['id'], $tag, $p['code'], $p['thumb'], $p['full'], $p['owner']);
 	echo "<a href='https://www.instagram.com/p/{$p[code]}/' target='_blank'>";
 	echo "<img src='{$p[thumb]}' alt='{$tag} #{$p[id]}' width='128px' /></a>";
       }
   }
 
+
+function get_owner($tmpfname, $ua, $code)
+{
+  $url = "https://www.instagram.com/p/".$code."/";
+  $curl = curl_init($url);
+  curl_setopt($curl, CURLOPT_COOKIEJAR, $tmpfname);
+  curl_setopt($curl, CURLOPT_COOKIEFILE, $tmpfname);
+  curl_setopt($curl,CURLOPT_USERAGENT, $ua);
+  curl_setopt($curl, CURLOPT_HEADER, false);
+  curl_setopt($curl, CURLINFO_HEADER_OUT, true);
+  curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
+  curl_setopt($curl, CURLOPT_HTTPHEADER,
+	      array("Accept: application/json, text/javascript, */*; q=0.01",
+		    "Origin: https://www.instagram.com",
+		    "Content-type: application/x-www-form-urlencoded; charset=UTF-8",
+		    "Referer: https://www.instagram.com/"
+		    )
+	      );
+  curl_setopt($curl, CURLOPT_POST, true);
+  curl_setopt($curl, CURLOPT_POSTFIELDS, $content);
+  $response = curl_exec($curl);
+  $status = curl_getinfo($curl, CURLINFO_HTTP_CODE);
+  if ( $status != 200 ) {
+    die("Error: call to URL $url failed with status $status, response $json_response, curl_error ".
+	curl_error($curl) . ", curl_errno " . curl_errno($curl));
+  }
+  curl_close($curl);
+
+  //  "owner":{"username":"mnkd_nico",
+
+  $owner = "???";
+  if (preg_match('/"owner":\{"username":"(.+)","is_unpublished"/', $response, $regs))
+    {
+      //print_r($regs);
+      $owner = $regs[1];
+    }
+  return ($owner);
+}
 
 function get_csrftoken($tag, $tmpfname, $ua)
 {

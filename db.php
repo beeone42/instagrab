@@ -111,6 +111,7 @@ class DB_Functions {
       $q .= " WHERE (tag = '{$tag}' AND {$w})";
     if ($l != "")
       $q .= " {$l}";
+    //echo $q; exit ;
     $result = $this->db->query($q, "id");
     return $result;
   }
@@ -118,14 +119,14 @@ class DB_Functions {
   /**
    * Storing new device
    */
-  public function storePicture($id, $tag, $code, $thumb, $full)
+  public function storePicture($id, $tag, $code, $thumb, $full, $owner)
   {
     // remove previous record with same id
     $q = "DELETE FROM ig WHERE id = '{$id}'";
     $this->db->query($q, MYSQLI_STORE_RESULT);
     // insert picture into database
-    $q = "INSERT INTO ig (id, tag, code, thumb, full, moderation) ".
-      "VALUES('{$id}', '{$tag}', '{$code}', '{$thumb}', '{$full}', 0)";
+    $q = "INSERT INTO ig (id, tag, code, thumb, full, owner, moderation) ".
+      "VALUES('{$id}', '{$tag}', '{$code}', '{$thumb}', '{$full}', '{$owner}', 0)";
     //echo "{$q}\n";
     return ($this->db->query($q));
   }
