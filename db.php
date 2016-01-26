@@ -105,10 +105,12 @@ class DB_Functions {
   /**
    * Getting all pictures
    */
-  public function getPictures($tag, $w = "") {
+  public function getPictures($tag, $w = "", $l = "") {
     $q = "SELECT * FROM ig";
     if ($w != "")
       $q .= " WHERE (tag = '{$tag}' AND {$w})";
+    if ($l != "")
+      $q .= " {$l}";
     $result = $this->db->query($q, "id");
     return $result;
   }
